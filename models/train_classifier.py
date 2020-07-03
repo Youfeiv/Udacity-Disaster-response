@@ -1,24 +1,88 @@
+# import libraries
 import sys
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine 
+import re
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+from sklearn.datasets import make_multilabel_classification
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.metrics import confusion_matrix
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import classification_report
+from sklearn.model_selection import GridSearchCV
+from tqdm import tqdm_notebook as tqdm
+nltk.download('punkt')
+nltk.download('wordnet')
 
+from pprint import pprint
+from time import time
+import logging
+from sklearn.base import BaseEstimator, TransformerMixin
+import pickle
 
 def load_data(database_filepath):
-    pass
+    # load data from database
+    url = 'sqlite:///{}'.format(‘DisasterResponse.db’)
+    engine = create_engine(url)
+    df = pd.read_sql_table(‘DisasterResponse’, engine) 
+    X = df.message.values
+    Y = df.iloc[:,4:].values
+    category_names = df.iloc[:,4:].columns
+    return X,Y,category_names
 
 
 def tokenize(text):
-    pass
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
+
+    clean_tokens = []
+    for tok in tokens:
+        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+        clean_tokens.append(clean_tok)
+
+    return clean_tokens
+
+
 
 
 def build_model():
-    pass
+    pipeline  = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+    ])
+    parameters = {
+      'vect__max_df': (0.5, 0.75),
+    # 'vect__max_features': (None, 5000, 10000, 50000),
+     # 'vect__ngram_range': ((1, 1), (1, 2)),  # unigrams or bigrams
+    # 'tfidf__use_idf': (True, False),
+    # 'tfidf__norm': ('l1', 'l2'),
+       # 'clf__estimator__n_jobs': (None,1),
+      # 'clf__estimator__n_estimators': (100,200,500)
+        
+    }
+    cv = GridSearchCV(pipeline, parameters, verbose=1)
+    return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    y_pred= model.predict(X_test)
+    
+    for i in range(36):
+      print('Category name:'+category_names[i])
+      print(classification_report(Y_test[:,i], y_pred[:,i]))
 
 
 def save_model(model, model_filepath):
-    pass
+    filename = 'disaster_response_model.pkl'
+    pickle.dump(model, open(filename, model_filepath))
 
 
 def main():
