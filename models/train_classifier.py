@@ -17,21 +17,15 @@ from sklearn.metrics import confusion_matrix
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
-from tqdm import tqdm_notebook as tqdm
 nltk.download('punkt')
 nltk.download('wordnet')
-
-from pprint import pprint
-from time import time
-import logging
 from sklearn.base import BaseEstimator, TransformerMixin
 import pickle
 
 def load_data(database_filepath):
     # load data from database
-    url = 'sqlite:///{}'.format(‘DisasterResponse.db’)
-    engine = create_engine(url)
-    df = pd.read_sql_table(‘DisasterResponse’, engine) 
+    engine = create_engine("sqlite:///{}".format(database_filepath))
+    df = pd.read_sql_table("DisasterResponse", engine)
     X = df.message.values
     Y = df.iloc[:,4:].values
     category_names = df.iloc[:,4:].columns
@@ -58,7 +52,7 @@ def build_model():
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
-    parameters = {
+    '''parameters = {
       'vect__max_df': (0.5, 0.75),
     # 'vect__max_features': (None, 5000, 10000, 50000),
      # 'vect__ngram_range': ((1, 1), (1, 2)),  # unigrams or bigrams
@@ -68,8 +62,8 @@ def build_model():
       # 'clf__estimator__n_estimators': (100,200,500)
         
     }
-    cv = GridSearchCV(pipeline, parameters, verbose=1)
-    return cv
+    cv = GridSearchCV(pipeline, parameters, verbose=1)'''
+    return pipeline  #cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
@@ -81,8 +75,8 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
-    filename = 'disaster_response_model.pkl'
-    pickle.dump(model, open(filename, model_filepath))
+    filename = model_filepath
+    pickle.dump(model, open(filename, 'wb'))
 
 
 def main():
@@ -111,7 +105,6 @@ def main():
               'as the first argument and the filepath of the pickle file to '\
               'save the model to as the second argument. \n\nExample: python '\
               'train_classifier.py ../data/DisasterResponse.db classifier.pkl')
-
 
 if __name__ == '__main__':
     main()
