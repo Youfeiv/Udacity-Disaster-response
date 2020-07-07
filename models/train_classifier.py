@@ -8,7 +8,6 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
 from sklearn.datasets import make_multilabel_classification
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -19,7 +18,6 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 nltk.download('punkt')
 nltk.download('wordnet')
-from sklearn.base import BaseEstimator, TransformerMixin
 import pickle
 
 def load_data(database_filepath):
@@ -45,7 +43,7 @@ def tokenize(text):
 
 
 
-
+# build predict model
 def build_model():
     pipeline  = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -62,10 +60,10 @@ def build_model():
       # 'clf__estimator__n_estimators': (100,200,500)
         
     }
-    cv = GridSearchCV(pipeline, parameters, verbose=1)'''
+    cv = GridSearchCV(pipeline, parameters, verbose=1)
     return cv
 
-
+# evaluate the performance of model
 def evaluate_model(model, X_test, Y_test, category_names):
     y_pred= model.predict(X_test)
     
@@ -73,7 +71,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
       print('Category name:'+category_names[i])
       print(classification_report(Y_test[:,i], y_pred[:,i]))
 
-
+# sterialize model to pkl file
 def save_model(model, model_filepath):
     filename = model_filepath
     pickle.dump(model, open(filename, 'wb'))

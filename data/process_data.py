@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine 
 
+#load data from filepaths
 def load_data(messages_filepath, categories_filepath):
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
@@ -33,7 +34,7 @@ def clean_data(df):
     
     return df
 
-
+# save data to database table
 def save_data(df, database_filename):
     engine = create_engine('sqlite:///DisasterResponse.db')
     df.to_sql('DisasterResponse', engine, index=False)

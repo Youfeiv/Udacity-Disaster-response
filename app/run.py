@@ -40,18 +40,17 @@ model = joblib.load("../models/classifier.pkl")
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.iloc[:,4:].sum()
-    genre_names = list(df.columns[4:])
+    # Extract categories informations from dataframe
+    cat_counts = df.iloc[:,4:].sum()
+    cat_names = list(df.columns[4:])
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
                 Bar(
-                    x=genre_names,
-                    y=genre_counts
+                    x=cat_names,
+                    y=cat_counts
                 )
             ],
 
@@ -92,7 +91,7 @@ def go():
     )
 
 
-
+# send local png image to flask --2nd extra visual as requested
 @app.route('/master', methods=['GET', 'POST'])
 def lionel(): 
     return render_template('master.html')
