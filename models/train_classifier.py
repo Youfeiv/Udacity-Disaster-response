@@ -63,7 +63,7 @@ def build_model():
     cv = GridSearchCV(pipeline, parameters, verbose=1)
     return cv
 
-# evaluate the performance of model
+# for each category, print the f1 score, precision and recall 
 def evaluate_model(model, X_test, Y_test, category_names):
     y_pred= model.predict(X_test)
     
