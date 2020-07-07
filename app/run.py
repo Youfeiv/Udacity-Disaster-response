@@ -1,16 +1,17 @@
 import json
 import plotly
 import pandas as pd
-
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
-
-from flask import Flask
+from flask import send_file
+from flask import Flask, url_for
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 import joblib
 from sqlalchemy import create_engine
-
+from wordcloud import WordCloud, STOPWORDS 
+import matplotlib.pyplot as plt
+import os
 
 app = Flask(__name__)
 
@@ -40,8 +41,8 @@ def index():
     
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)
+    genre_counts = df.iloc[:,4:].sum()
+    genre_names = list(df.columns[4:])
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -55,12 +56,12 @@ def index():
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
+                'title': 'Distribution of Message Categories',
                 'yaxis': {
                     'title': "Count"
                 },
                 'xaxis': {
-                    'title': "Genre"
+                    'title': "Category"
                 }
             }
         }
@@ -73,8 +74,7 @@ def index():
     # render web page with plotly graphs
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
 
-
-# web page that handles user query and displays model results
+# web page that handles user query and displays model results'''
 @app.route('/go')
 def go():
     # save user input in query
@@ -90,6 +90,13 @@ def go():
         query=query,
         classification_result=classification_results
     )
+
+
+
+@app.route('/master', methods=['GET', 'POST'])
+def lionel(): 
+    return render_template('master.html')
+
 
 
 def main():
