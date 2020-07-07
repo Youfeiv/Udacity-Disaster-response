@@ -52,9 +52,9 @@ def build_model():
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
-    '''parameters = {
+    parameters = {
       'vect__max_df': (0.5, 0.75),
-    # 'vect__max_features': (None, 5000, 10000, 50000),
+      'vect__max_features': (None, 5000, 10000, 50000),
      # 'vect__ngram_range': ((1, 1), (1, 2)),  # unigrams or bigrams
     # 'tfidf__use_idf': (True, False),
     # 'tfidf__norm': ('l1', 'l2'),
@@ -63,7 +63,7 @@ def build_model():
         
     }
     cv = GridSearchCV(pipeline, parameters, verbose=1)'''
-    return pipeline  #cv
+    return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
