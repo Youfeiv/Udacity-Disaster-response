@@ -12,17 +12,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
-<style>
-img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 0;
-  margin-bottom: 0;
 
-}
-    
-</style>
 
 <body>
 
@@ -73,19 +63,6 @@ img {
         <div class="text-center" style=”display:block;”
              id="{{id}}"></div>
     {% endfor %}
-    
-    <div class="text-center" style=”display:block;”>
-        <h2>Most repeated words</h2>
-        <p style=”display:block;”>Result from first 300 messages</p>
-    </div> 
-    </div style=”display:block;”>      
-       <img title="Most repeated words"
-             src="{{url_for('static', filename='word.png')}}"
-             alt="Result from first 300 messages"
-             width="800" height="560"
-             style=”display:block;”
-       >
-    </div>    
     
 </div>
   
