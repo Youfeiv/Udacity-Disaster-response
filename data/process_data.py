@@ -5,6 +5,15 @@ from sqlalchemy import create_engine
 
 #load data from filepaths
 def load_data(messages_filepath, categories_filepath):
+""" 
+        The function load message.csv and categories csv and return them to a merged dataframe. 
+  
+        Parameters: 
+            the filepaths to the csv documents. 
+          
+        Returns: 
+            the merged dataframe. 
+"""
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = messages.merge(categories,on='id') # merge datasets
@@ -14,6 +23,16 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+""" 
+        The function clean the raw dataframe and return a cleaned up dataframe. 
+        It cleans the categories columns and extract to only 0 and 1 binary.
+  
+        Parameters: 
+            the raw dataframe. 
+          
+        Returns: 
+            cleaned dataframe. 
+"""
     # create a dataframe of the 36 individual category columns
     categories = df.categories.str.split(";",expand=True)
     # select the first row of the categories dataframe
@@ -27,6 +46,8 @@ def clean_data(df):
       categories[column] = categories[column].astype(str).str.slice(start=-1)
     # convert column from string to numeric
       categories[column] = categories[column].astype(int)
+    # drop 204 lines where the related value is 2
+      categories = categories[categories['related'] != 2 ]
     df.drop(columns='categories',inplace=True)
     # concatenate the original dataframe with the new `categories` dataframe
     df = pd.concat([df,categories],axis=1,join="outer")
@@ -36,8 +57,17 @@ def clean_data(df):
 
 # save data to database table
 def save_data(df, database_filename):
-    engine = create_engine('sqlite:///DisasterResponse.db')
-    df.to_sql('DisasterResponse', engine, index=False)
+""" 
+        The function use engine to save the df to a database table.  
+  
+        Parameters: 
+            the dataframe and where the table will be stocked.
+          
+        Returns: 
+            a db table named 'DisasterResponse' 
+"""
+    engine = create_engine("sqlite:///{}".format(database_filepath)
+    df.to_sql('DisasterResponse', engine, index=False, if_exists='replace')
 
 
 def main():
