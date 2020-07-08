@@ -12,10 +12,15 @@ from sqlalchemy import create_engine
 from wordcloud import WordCloud, STOPWORDS 
 import matplotlib.pyplot as plt
 import os
+from nltk.corpus import stopwords
+import re
+from collections import Counter
+from itertools import islice
 
 app = Flask(__name__)
 
 def tokenize(text):
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -23,6 +28,12 @@ def tokenize(text):
     for tok in tokens:
         clean_tok = lemmatizer.lemmatize(tok).lower().strip()
         clean_tokens.append(clean_tok)
+    stopwords_ = stopwords.words("english")
+    clean_tokens = [word for word in clean_tokens if word not in stopwords_]
+
+    return clean_tokens
+
+
 
     return clean_tokens
 
@@ -43,6 +54,20 @@ def index():
     # Extract categories informations from dataframe
     cat_counts = df.iloc[:,4:].sum()
     cat_names = list(df.columns[4:])
+
+    words=[]
+    for word in df.message[:300].values:
+        words.extend(tokenize(word))
+
+    word_count_dict = Counter(words)
+    dict= {k: v for k, v in sorted(word_count_dict.items(), key=lambda item: item[1],reverse=True)}
+    def get_list(dict):
+        return dict.keys()
+    def get_values(dict):
+        return dict.values()
+
+    words = list(get_list(dict))[:15]
+    count = list(get_values(dict))[:15]
     
     # create visuals
     graphs = [
@@ -61,6 +86,24 @@ def index():
                 },
                 'xaxis': {
                     'title': "Category"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=words,
+                    y=count
+                )
+            ],
+
+            'layout': {
+                'title': 'Most repeated words out of 300 messages',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Word"
                 }
             }
         }
@@ -90,11 +133,6 @@ def go():
         classification_result=classification_results
     )
 
-
-# send local png image to flask --2nd extra visual as requested
-@app.route('/master', methods=['GET', 'POST'])
-def lionel(): 
-    return render_template('master.html')
 
 
 
